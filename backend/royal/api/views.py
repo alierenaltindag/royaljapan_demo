@@ -425,9 +425,24 @@ class GetProduct(APIView):
 class CreatePaymentIntentView(APIView):
     permission_classes = (AllowAny,)
     def post(self, request):
-        product_id = request.data['product']
-        coupon_code = request.data['coupon']
-        count = int(request.data['count'])
+
+        product_id = request.data.get('product')
+        coupon_code = request.data.get('coupon')
+
+        try:
+            count_raw = request.data.get('count', None)
+            count = int(count_raw)
+            if count <= 0:
+                raise ValueError('count must be a positive number')
+        except Exception:
+            status_code = status.HTTP_400_BAD_REQUEST
+            response = {
+                'errors': {
+                    'count': '数量は1以上の正の整数である必要があります。'
+                },
+                'status code': status_code,
+            }
+            return Response(response, status=status_code)
         product = Product.objects.filter(Q(id=product_id)).first()
         seller = product.seller
         coupon = Coupon.objects.filter(Q(code = coupon_code) & Q(user = seller)).first()
@@ -459,14 +474,27 @@ class CreatePaymentIntentView(APIView):
 class CompletePayment(APIView):
     permission_classes = (AllowAny,)
     def post(self, request):
-        product_id = request.data['product']
-        coupon_code = request.data['coupon']
-        name = request.data['name']
-        email = request.data['email']
-        phone = request.data['phone']
-        address = request.data['address']
-        address1 = request.data['address1']
-        count = int(request.data['count'])
+        product_id = request.data.get('product')
+        coupon_code = request.data.get('coupon')
+        name = request.data.get('name')
+        email = request.data.get('email')
+        phone = request.data.get('phone')
+        address = request.data.get('address')
+        address1 = request.data.get('address1')
+        try:
+            count_raw = request.data.get('count', None)
+            count = int(count_raw)
+            if count <= 0:
+                raise ValueError('count must be a positive number')
+        except Exception:
+            status_code = status.HTTP_400_BAD_REQUEST
+            response = {
+                'errors': {
+                    'count': '数量は1以上の正の整数である必要があります。'
+                },
+                'status code': status_code,
+            }
+            return Response(response, status=status_code)
         product = Product.objects.filter(Q(id=product_id)).first()
         seller = product.seller
         coupon = Coupon.objects.filter(Q(code = coupon_code) & Q(user = seller)).first()

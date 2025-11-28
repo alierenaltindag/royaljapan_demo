@@ -20,6 +20,7 @@ function Order({}) {
     // const [searchParams, setSearchParams] = useSearchParams();
     let searchParamCount = searchParams?.get("count")
     const [count, setCount] = useState(searchParamCount);
+    const [countError, setCountError] = useState("");
     // const [trigger, setTrigger] = useState(0);
     const {user_id, product_id, coupon } = useParams()
     const [tab, setTab] = useState(1)
@@ -35,6 +36,14 @@ function Order({}) {
 
             if(name=="" || email==""){
                 return
+            }
+            // Validate count (stake/quantity) before moving on
+            const parsed = parseInt(count, 10);
+            if(Number.isNaN(parsed) || parsed <= 0){
+                setCountError('数量は1以上の正の整数である必要があります。');
+                return;
+            } else {
+                setCountError("");
             }
             // else{
             //     localStorage.setItem("customerData", JSON.stringify({
@@ -71,7 +80,7 @@ function Order({}) {
                 "product":product_id,
                 'user':user_id,
                 'coupon':coupon ? coupon : "",
-                'count':count,
+                'count': parseInt(count, 10),
                 'email':email,
                 'name':name,
                 'phone':phone,
@@ -242,6 +251,8 @@ function Order({}) {
                             {tab==2&&
                                 <div className='card-container'>
                                     <div className="form-group">
+                                        {/* Small inline error for invalid count */}
+                                        {countError && <div style={{color:'red', fontSize:12, marginBottom:8}}>{countError}</div>}
                                         <div className="form-input">
                                             <div className="label">振込先銀行</div>
                                             <div className="input">
