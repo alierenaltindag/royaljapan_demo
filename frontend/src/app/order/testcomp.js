@@ -31,9 +31,21 @@ function Order({}) {
     const [email, setEmail] = useState("");
     // const [option, setOption] = useState({})
     const [price, setPrice] = useState(0);
+    
+    // Validate count on page load
+    useEffect(() => {
+        const parsed = parseInt(count, 10);
+        if(Number.isNaN(parsed) || parsed <= 0){
+            setCountError('数量は1以上の正の整数である必要があります。');
+        } else {
+            setCountError("");
+        }
+    }, [count]);
+    
     const handleClick = async () =>{
         if(tab==1){
 
+            // Validate basic customer fields
             if(name=="" || email==""){
                 return
             }
@@ -217,6 +229,8 @@ function Order({}) {
                             </div>
 
                             {tab==1&&<div className="form-group">
+                                {/* Small inline error for invalid count */}
+                                {countError && <div style={{color:'red', fontSize:12, marginBottom:16, paddingLeft:20}}>{countError}</div>}
                                 <div className="form-input">
                                     <div className="label">お名前</div>
                                     <div className="input">
@@ -251,8 +265,6 @@ function Order({}) {
                             {tab==2&&
                                 <div className='card-container'>
                                     <div className="form-group">
-                                        {/* Small inline error for invalid count */}
-                                        {countError && <div style={{color:'red', fontSize:12, marginBottom:8}}>{countError}</div>}
                                         <div className="form-input">
                                             <div className="label">振込先銀行</div>
                                             <div className="input">
